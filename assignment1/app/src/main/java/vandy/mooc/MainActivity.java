@@ -3,6 +3,7 @@ package vandy.mooc;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,6 +24,8 @@ import java.io.File;
  * view it.
  */
 public class MainActivity extends LifecycleLoggingActivity {
+    private static String SAVED_URL = "My URL";
+    private SharedPreferences prefs;
     /**
      * Debugging tag used by the Android logger.
      */
@@ -67,7 +70,9 @@ public class MainActivity extends LifecycleLoggingActivity {
         // Cache the EditText that holds the urls entered by the user
         // (if any).
         // @@ TODO -- you fill in here.
+        prefs = getPreferences(MODE_PRIVATE);
         mUrlEditText = (EditText) findViewById(R.id.url);
+        mUrlEditText.setText(prefs.getString(SAVED_URL, ""));
     }
 
     /**
@@ -95,6 +100,9 @@ public class MainActivity extends LifecycleLoggingActivity {
                 // downloaded image file via the onActivityResult() hook
                 // method.
                 // @@ T ODO -- you fill in here.
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString(SAVED_URL, url.toString());
+                editor.commit();
 
                 startActivityForResult(makeDownloadImageIntent(url), DOWNLOAD_IMAGE_REQUEST);
             }
@@ -192,9 +200,10 @@ public class MainActivity extends LifecycleLoggingActivity {
         // toast if the URL is invalid.
         // @@ TODO -- you fill in here, replacing "true" with the
         // proper code.
-        if (URLUtil.isValidUrl(url.toString()))
+        if (URLUtil.isValidUrl(url.toString())) {
+            mDefaultUrl = url;
             return url;
-        else {
+        } else {
             Toast.makeText(this,
                            "Invalid URL",
                            Toast.LENGTH_SHORT).show();
